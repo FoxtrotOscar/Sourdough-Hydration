@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<link rel="icon" sizes="192x192" href="icon192.png">
-	<link rel="manifest" href="manifest.json">
-	
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Sourdough Hydration (Swipe)</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- PWA + icon -->
+  <link rel="icon" sizes="192x192" href="icon192.png" />
+  <link rel="manifest" href="manifest.json" />
+
   <style>
     body {
       margin: 0;
@@ -25,7 +27,6 @@
       opacity: 0.8;
     }
 
-    /* Swipe container */
     .pages {
       display: flex;
       overflow-x: auto;
@@ -87,7 +88,6 @@
       opacity: 0.8;
     }
 
-    /* Dots for pages */
     .dots {
       text-align: center;
       padding: 0.4rem 0 0.6rem;
@@ -107,7 +107,7 @@
 
 <header>
   Easy Sourdough Hydration
-  <div class="hint">Swipe left/right between “Hydration %” and “Water”</div>
+  <div class="hint">Swipe between “Hydration %” and “Water”</div>
 </header>
 
 <div class="pages" id="pages">
@@ -180,7 +180,6 @@
 </div>
 
 <script>
-  // --- Calculations ---
   function calcHydration() {
     const F = parseFloat(document.getElementById('flour_h').value)   || 0;
     const S = parseFloat(document.getElementById('starter_h').value) || 0;
@@ -203,10 +202,9 @@
     const waterRecipe = waterTotal - S / 2;
 
     document.getElementById('water_out').textContent =
-      waterRecipe.toFixed(0); // nearest gram
+      waterRecipe.toFixed(0);
   }
 
-  // Keep flour & starter in sync between pages
   function syncFromHydrationPage() {
     document.getElementById('flour_w').value   =
       document.getElementById('flour_h').value;
@@ -221,7 +219,6 @@
       document.getElementById('starter_w').value;
   }
 
-  // Attach listeners
   ['flour_h','starter_h','water_in'].forEach(id => {
     document.getElementById(id).addEventListener('input', () => {
       syncFromHydrationPage();
@@ -238,17 +235,15 @@
     });
   });
 
-  // Dots update based on scroll position
   const pagesEl = document.getElementById('pages');
   pagesEl.addEventListener('scroll', () => {
     const x = pagesEl.scrollLeft;
     const w = pagesEl.clientWidth;
-    const pageIndex = Math.round(x / w); // 0 or 1
+    const pageIndex = Math.round(x / w);
     document.getElementById('dot1').classList.toggle('active', pageIndex === 0);
     document.getElementById('dot2').classList.toggle('active', pageIndex === 1);
   });
 
-  // Initial
   calcHydration();
   calcWater();
 </script>
