@@ -9,4 +9,5 @@
     }
   ],
   "display": "standalone",
-  "start_url": "SourdoughHydration.html"}
+
+  "start_url": "./"}
