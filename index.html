@@ -127,6 +127,12 @@
       </label>
 
       <label>
+        Number of loaves
+        <input type="number" id="loaves_h" value="1" min="1" step="1">
+      </label>
+
+
+      <label>
         Water (g)
         <input type="number" id="water_in" value="390" step="1">
       </label>
@@ -135,12 +141,16 @@
         Hydration:<br>
         <span class="value" id="hydration_out">83.8</span> %
       </div>
-
+      
       <div class="result">
-        Final dough weight:<br>
+        Final dough weight (1 loaf):<br>
         <span class="value" id="final_weight_h">0</span> g
       </div>
-
+      
+      <div class="result">
+        Total for <span id="loaves_label_h">1</span> loaves:<br>
+        <span class="value" id="multi_weight_h">0</span> g
+      </div>
 
       <div class="small-note">
         Starter is treated as 50% flour, 50% water.
@@ -168,15 +178,27 @@
         <input type="number" id="starter_w" value="100" step="1">
       </label>
 
+      <label>
+        Number of loaves
+        <input type="number" id="loaves_w" value="1" min="1" step="1">
+      </label>
+
+
       <div class="result">
         Water needed:<br>
         <span class="value" id="water_out">391</span> g
       </div>
-
+      
       <div class="result">
-        Final dough weight:<br>
+        Final dough weight (1 loaf):<br>
         <span class="value" id="final_weight_w">0</span> g
       </div>
+      
+      <div class="result">
+        Total for <span id="loaves_label_w">1</span> loaves:<br>
+        <span class="value" id="multi_weight_w">0</span> g
+      </div>
+
 
 
       <div class="small-note">
@@ -196,6 +218,7 @@
   const F = parseFloat(document.getElementById('flour_h').value)   || 0;
   const S = parseFloat(document.getElementById('starter_h').value) || 0;
   const W = parseFloat(document.getElementById('water_in').value)  || 0;
+  const L = parseInt(document.getElementById('loaves_h').value)    || 1;
 
   const flourTotal = F + S / 2;
   const waterTotal = W + S / 2;
@@ -203,44 +226,63 @@
 
   document.getElementById('hydration_out').textContent = H.toFixed(1);
 
-  // Final dough weight
+  // One-loaf dough weight
   const total = F + S + W;
   document.getElementById('final_weight_h').textContent = total.toFixed(0);
+
+  // Multi-loaf total
+  const multi = total * L;
+  document.getElementById('multi_weight_h').textContent = multi.toFixed(0);
+  document.getElementById('loaves_label_h').textContent = L;
 }
+
 
 
   function calcWater() {
   const H = parseFloat(document.getElementById('hydration_in').value) || 0;
   const F = parseFloat(document.getElementById('flour_w').value)      || 0;
   const S = parseFloat(document.getElementById('starter_w').value)    || 0;
+  const L = parseInt(document.getElementById('loaves_w').value)       || 1;
 
   const flourTotal = F + S / 2;
   const waterTotal = flourTotal * H / 100;
   const waterRecipe = waterTotal - S / 2;
 
-  document.getElementById('water_out').textContent = waterRecipe.toFixed(0);
+  document.getElementById('water_out').textContent =
+    waterRecipe.toFixed(0);
 
-  // Final dough weight
+  // One-loaf dough weight
   const total = F + S + waterRecipe;
   document.getElementById('final_weight_w').textContent = total.toFixed(0);
+
+  // Multi-loaf total
+  const multi = total * L;
+  document.getElementById('multi_weight_w').textContent = multi.toFixed(0);
+  document.getElementById('loaves_label_w').textContent = L;
 }
 
 
+
   function syncFromHydrationPage() {
-    document.getElementById('flour_w').value   =
-      document.getElementById('flour_h').value;
-    document.getElementById('starter_w').value =
-      document.getElementById('starter_h').value;
-  }
+  document.getElementById('flour_w').value   =
+    document.getElementById('flour_h').value;
+  document.getElementById('starter_w').value =
+    document.getElementById('starter_h').value;
+  document.getElementById('loaves_w').value  =
+    document.getElementById('loaves_h').value;
+}
 
-  function syncFromWaterPage() {
-    document.getElementById('flour_h').value   =
-      document.getElementById('flour_w').value;
-    document.getElementById('starter_h').value =
-      document.getElementById('starter_w').value;
-  }
+function syncFromWaterPage() {
+  document.getElementById('flour_h').value   =
+    document.getElementById('flour_w').value;
+  document.getElementById('starter_h').value =
+    document.getElementById('starter_w').value;
+  document.getElementById('loaves_h').value  =
+    document.getElementById('loaves_w').value;
+}
 
-  ['flour_h','starter_h','water_in'].forEach(id => {
+
+  ['flour_h','starter_h','water_in','loaves_h'].forEach(id => {
     document.getElementById(id).addEventListener('input', () => {
       syncFromHydrationPage();
       calcHydration();
@@ -248,7 +290,7 @@
     });
   });
 
-  ['hydration_in','flour_w','starter_w'].forEach(id => {
+  ['hydration_in','flour_w','starter_w','loaves_w'].forEach(id => {
     document.getElementById(id).addEventListener('input', () => {
       syncFromWaterPage();
       calcWater();
@@ -271,4 +313,3 @@
 
 </body>
 </html>
-
