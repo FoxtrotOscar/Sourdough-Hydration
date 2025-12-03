@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="icon" sizes="192x192" href="icon192.png">
+	<link rel="manifest" href="manifest.json">
+	
+  <meta charset="UTF-8">
+  <title>Sourdough Hydration (Swipe)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+    }
+    header {
+      text-align: center;
+      padding: 0.6rem;
+      background: #333;
+      color: #fff;
+      font-size: 1rem;
+    }
+    .hint {
+      font-size: 0.75rem;
+      opacity: 0.8;
+    }
+
+    /* Swipe container */
+    .pages {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      height: calc(100vh - 70px);
+    }
+    .page {
+      scroll-snap-align: start;
+      min-width: 100%;
+      box-sizing: border-box;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.2);
+      padding: 1rem;
+    }
+
+    h2 {
+      text-align: center;
+      margin-top: 0;
+      font-size: 1.1rem;
+    }
+    label {
+      display: block;
+      margin-top: 0.6rem;
+      font-size: 0.9rem;
+    }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.35rem;
+      font-size: 1rem;
+      margin-top: 0.1rem;
+    }
+    .result {
+      margin-top: 0.8rem;
+      padding: 0.6rem;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: bold;
+      background: #fff7c2;
+      border: 2px solid #ff5959;
+    }
+    .result span.value {
+      font-size: 1.3rem;
+    }
+    .small-note {
+      margin-top: 0.6rem;
+      font-size: 0.8rem;
+      text-align: center;
+      opacity: 0.8;
+    }
+
+    /* Dots for pages */
+    .dots {
+      text-align: center;
+      padding: 0.4rem 0 0.6rem;
+      font-size: 1.2rem;
+    }
+    .dot {
+      display: inline-block;
+      margin: 0 0.2rem;
+      opacity: 0.4;
+    }
+    .dot.active {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  Easy Sourdough Hydration
+  <div class="hint">Swipe left/right between “Hydration %” and “Water”</div>
+</header>
+
+<div class="pages" id="pages">
+  <!-- PAGE 1: ? Hydration % -->
+  <section class="page" id="page1">
+    <div class="card">
+      <h2>Given Water → What Hydration %?</h2>
+
+      <label>
+        Flour (g)
+        <input type="number" id="flour_h" value="475" step="1">
+      </label>
+
+      <label>
+        Starter (1:1) (g)
+        <input type="number" id="starter_h" value="100" step="1">
+      </label>
+
+      <label>
+        Water (g)
+        <input type="number" id="water_in" value="390" step="1">
+      </label>
+
+      <div class="result">
+        Hydration:<br>
+        <span class="value" id="hydration_out">83.8</span> %
+      </div>
+
+      <div class="small-note">
+        Starter is treated as 50% flour, 50% water.
+      </div>
+    </div>
+  </section>
+
+  <!-- PAGE 2: ? Water -->
+  <section class="page" id="page2">
+    <div class="card">
+      <h2>Given Hydration % → How Much Water?</h2>
+
+      <label>
+        Hydration (%)
+        <input type="number" id="hydration_in" value="84" step="0.1">
+      </label>
+
+      <label>
+        Flour (g)
+        <input type="number" id="flour_w" value="475" step="1">
+      </label>
+
+      <label>
+        Starter (1:1) (g)
+        <input type="number" id="starter_w" value="100" step="1">
+      </label>
+
+      <div class="result">
+        Water needed:<br>
+        <span class="value" id="water_out">391</span> g
+      </div>
+
+      <div class="small-note">
+        Uses the same 1:1 starter assumption as the first page.
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="dots">
+  <span class="dot active" id="dot1">●</span>
+  <span class="dot" id="dot2">●</span>
+</div>
+
+<script>
+  // --- Calculations ---
+  function calcHydration() {
+    const F = parseFloat(document.getElementById('flour_h').value)   || 0;
+    const S = parseFloat(document.getElementById('starter_h').value) || 0;
+    const W = parseFloat(document.getElementById('water_in').value)  || 0;
+
+    const flourTotal = F + S / 2;
+    const waterTotal = W + S / 2;
+    const H = flourTotal > 0 ? (waterTotal / flourTotal * 100) : 0;
+
+    document.getElementById('hydration_out').textContent = H.toFixed(1);
+  }
+
+  function calcWater() {
+    const H = parseFloat(document.getElementById('hydration_in').value) || 0;
+    const F = parseFloat(document.getElementById('flour_w').value)      || 0;
+    const S = parseFloat(document.getElementById('starter_w').value)    || 0;
+
+    const flourTotal = F + S / 2;
+    const waterTotal = flourTotal * H / 100;
+    const waterRecipe = waterTotal - S / 2;
+
+    document.getElementById('water_out').textContent =
+      waterRecipe.toFixed(0); // nearest gram
+  }
+
+  // Keep flour & starter in sync between pages
+  function syncFromHydrationPage() {
+    document.getElementById('flour_w').value   =
+      document.getElementById('flour_h').value;
+    document.getElementById('starter_w').value =
+      document.getElementById('starter_h').value;
+  }
+
+  function syncFromWaterPage() {
+    document.getElementById('flour_h').value   =
+      document.getElementById('flour_w').value;
+    document.getElementById('starter_h').value =
+      document.getElementById('starter_w').value;
+  }
+
+  // Attach listeners
+  ['flour_h','starter_h','water_in'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      syncFromHydrationPage();
+      calcHydration();
+      calcWater();
+    });
+  });
+
+  ['hydration_in','flour_w','starter_w'].forEach(id => {
+    document.getElementById(id).addEventListener('input', () => {
+      syncFromWaterPage();
+      calcWater();
+      calcHydration();
+    });
+  });
+
+  // Dots update based on scroll position
+  const pagesEl = document.getElementById('pages');
+  pagesEl.addEventListener('scroll', () => {
+    const x = pagesEl.scrollLeft;
+    const w = pagesEl.clientWidth;
+    const pageIndex = Math.round(x / w); // 0 or 1
+    document.getElementById('dot1').classList.toggle('active', pageIndex === 0);
+    document.getElementById('dot2').classList.toggle('active', pageIndex === 1);
+  });
+
+  // Initial
+  calcHydration();
+  calcWater();
+</script>
+
+</body>
+</html>
