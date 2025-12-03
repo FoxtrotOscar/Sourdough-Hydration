@@ -136,6 +136,12 @@
         <span class="value" id="hydration_out">83.8</span> %
       </div>
 
+      <div class="result">
+        Final dough weight:<br>
+        <span class="value" id="final_weight_h">0</span> g
+      </div>
+
+
       <div class="small-note">
         Starter is treated as 50% flour, 50% water.
       </div>
@@ -167,6 +173,12 @@
         <span class="value" id="water_out">391</span> g
       </div>
 
+      <div class="result">
+        Final dough weight:<br>
+        <span class="value" id="final_weight_w">0</span> g
+      </div>
+
+
       <div class="small-note">
         Uses the same 1:1 starter assumption as the first page.
       </div>
@@ -181,29 +193,38 @@
 
 <script>
   function calcHydration() {
-    const F = parseFloat(document.getElementById('flour_h').value)   || 0;
-    const S = parseFloat(document.getElementById('starter_h').value) || 0;
-    const W = parseFloat(document.getElementById('water_in').value)  || 0;
+  const F = parseFloat(document.getElementById('flour_h').value)   || 0;
+  const S = parseFloat(document.getElementById('starter_h').value) || 0;
+  const W = parseFloat(document.getElementById('water_in').value)  || 0;
 
-    const flourTotal = F + S / 2;
-    const waterTotal = W + S / 2;
-    const H = flourTotal > 0 ? (waterTotal / flourTotal * 100) : 0;
+  const flourTotal = F + S / 2;
+  const waterTotal = W + S / 2;
+  const H = flourTotal > 0 ? (waterTotal / flourTotal * 100) : 0;
 
-    document.getElementById('hydration_out').textContent = H.toFixed(1);
-  }
+  document.getElementById('hydration_out').textContent = H.toFixed(1);
+
+  // Final dough weight
+  const total = F + S + W;
+  document.getElementById('final_weight_h').textContent = total.toFixed(0);
+}
+
 
   function calcWater() {
-    const H = parseFloat(document.getElementById('hydration_in').value) || 0;
-    const F = parseFloat(document.getElementById('flour_w').value)      || 0;
-    const S = parseFloat(document.getElementById('starter_w').value)    || 0;
+  const H = parseFloat(document.getElementById('hydration_in').value) || 0;
+  const F = parseFloat(document.getElementById('flour_w').value)      || 0;
+  const S = parseFloat(document.getElementById('starter_w').value)    || 0;
 
-    const flourTotal = F + S / 2;
-    const waterTotal = flourTotal * H / 100;
-    const waterRecipe = waterTotal - S / 2;
+  const flourTotal = F + S / 2;
+  const waterTotal = flourTotal * H / 100;
+  const waterRecipe = waterTotal - S / 2;
 
-    document.getElementById('water_out').textContent =
-      waterRecipe.toFixed(0);
-  }
+  document.getElementById('water_out').textContent = waterRecipe.toFixed(0);
+
+  // Final dough weight
+  const total = F + S + waterRecipe;
+  document.getElementById('final_weight_w').textContent = total.toFixed(0);
+}
+
 
   function syncFromHydrationPage() {
     document.getElementById('flour_w').value   =
@@ -250,3 +271,4 @@
 
 </body>
 </html>
+
